@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 게임</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="main-layout">
+            <div class="game-container">
+            <div class="header">
+                <div class="title-section">
+                    <h1>2048</h1>
+                    <p class="user-info">플레이어: <span id="currentUser"></span></p>
+                </div>
+                <div class="score-section">
+                    <div class="score-box">
+                        <p>점수</p>
+                        <span id="score">0</span>
+                    </div>
+                    <div class="score-box">
+                        <p>최고점수</p>
+                        <span id="bestScore">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button onclick="newGame()">새 게임</button>
+                <button onclick="showHelp()">게임 방법</button>
+                <button onclick="showRanking()">랭킹 보기</button>
+                <button onclick="logout()">로그아웃</button>
+            </div>
+
+            <div id="aiGuide" class="ai-guide" style="display: none;">
+                <div class="ai-panel">
+                    <h3>🤖 AI 가이드 (관리자 전용)</h3>
+                    <p>추천 방향: <span id="aiSuggestion">-</span></p>
+                    <label>
+                        <input type="checkbox" id="autoGuide" onchange="toggleAutoGuide()">
+                        자동 가이드 켜기
+                    </label>
+                </div>
+            </div>
+
+            <div class="game-board-wrapper">
+                <div id="gameBoard" class="game-board">
+                    <!-- 4x4 그리드 -->
+                </div>
+                <!-- 방향 표시 오버레이 -->
+                <div id="directionOverlay" class="direction-overlay">
+                    <div class="direction-arrow"></div>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <p>화살표 키로 타일을 움직이세요. 같은 숫자의 타일이 합쳐져서 2048을 만드세요!</p>
+            </div>
+        </div>
+
+        <!-- 실시간 랭킹 패널 -->
+        <div class="ranking-panel">
+            <div class="ranking-panel-header">
+                <h2>🏆 실시간 랭킹</h2>
+            </div>
+            <div id="liveRankingList" class="live-ranking-list">
+                <!-- 실시간 랭킹이 여기에 표시됩니다 -->
+            </div>
+        </div>
+        </div>
+
+        <!-- 랭킹 모달 -->
+        <div id="rankingModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🏆 최고 점수 랭킹</h2>
+                    <button class="close-btn" onclick="closeRanking()">&times;</button>
+                </div>
+                <div id="rankingList" class="ranking-list">
+                    <!-- 랭킹 목록이 여기에 표시됩니다 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 게임 오버 모달 -->
+        <div id="gameOverModal" class="modal" style="display: none;">
+            <div class="modal-content game-over">
+                <h2>게임 오버!</h2>
+                <p>최종 점수: <span id="finalScore"></span></p>
+                <p id="highScoreMessage"></p>
+                <button onclick="newGame(); closeGameOver()">다시 하기</button>
+                <button onclick="showRanking()">랭킹 보기</button>
+            </div>
+        </div>
+
+        <!-- 게임 방법 모달 -->
+        <div id="helpModal" class="modal" style="display: none;">
+            <div class="modal-content help-modal">
+                <div class="modal-header">
+                    <h2>📖 게임 방법</h2>
+                    <button class="close-btn" onclick="closeHelp()">&times;</button>
+                </div>
+                <div class="help-content">
+                    <section class="help-section">
+                        <h3>🎮 기본 규칙</h3>
+                        <p>2048은 숫자 타일을 합쳐서 2048 타일을 만드는 퍼즐 게임입니다.</p>
+                        <ul>
+                            <li>게임은 4×4 그리드에서 진행됩니다</li>
+                            <li>처음에 2 또는 4 숫자가 적힌 타일 2개로 시작합니다</li>
+                            <li>같은 숫자의 타일이 만나면 합쳐져서 두 배가 됩니다</li>
+                            <li>2048 타일을 만들면 승리!</li>
+                        </ul>
+                    </section>
+
+                    <section class="help-section">
+                        <h3>⌨️ 조작 방법</h3>
+                        <div class="control-grid">
+                            <div class="control-item">
+                                <div class="key-button">↑</div>
+                                <p>위로 이동</p>
+                            </div>
+                            <div class="control-item">
+                                <div class="key-button">↓</div>
+                                <p>아래로 이동</p>
+                            </div>
+                            <div class="control-item">
+                                <div class="key-button">←</div>
+                                <p>왼쪽으로 이동</p>
+                            </div>
+                            <div class="control-item">
+                                <div class="key-button">→</div>
+                                <p>오른쪽으로 이동</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="help-section">
+                        <h3>🎯 게임 진행 방식</h3>
+                        <ol>
+                            <li><strong>방향키 입력</strong>: 화살표 키를 눌러 모든 타일을 한 방향으로 이동시킵니다</li>
+                            <li><strong>타일 합치기</strong>: 같은 숫자의 타일이 만나면 자동으로 합쳐집니다
+                                <div class="example">예: 2 + 2 = 4, 4 + 4 = 8, 8 + 8 = 16...</div>
+                            </li>
+                            <li><strong>새 타일 생성</strong>: 매 턴마다 빈 칸에 새로운 타일(2 또는 4)이 생성됩니다</li>
+                            <li><strong>게임 종료</strong>: 더 이상 움직일 수 없고 합칠 수 있는 타일도 없으면 게임이 끝납니다</li>
+                        </ol>
+                    </section>
+
+                    <section class="help-section">
+                        <h3>💯 점수 시스템</h3>
+                        <p>타일을 합칠 때마다 합쳐진 타일의 값만큼 점수를 얻습니다.</p>
+                        <div class="score-example">
+                            <div>2 + 2 = 4 → <strong>+4점</strong></div>
+                            <div>4 + 4 = 8 → <strong>+8점</strong></div>
+                            <div>64 + 64 = 128 → <strong>+128점</strong></div>
+                        </div>
+                    </section>
+
+                    <section class="help-section">
+                        <h3>💡 전략과 팁</h3>
+                        <ul>
+                            <li><strong>모서리 전략</strong>: 가장 큰 타일을 한 모서리에 고정시키세요</li>
+                            <li><strong>정렬 유지</strong>: 큰 숫자부터 작은 숫자 순서로 정렬하세요</li>
+                            <li><strong>빈 칸 확보</strong>: 가능한 한 많은 빈 칸을 유지하세요</li>
+                            <li><strong>한 방향 피하기</strong>: 특정 방향(예: 위쪽)을 가급적 사용하지 마세요</li>
+                            <li><strong>계획적 이동</strong>: 충동적으로 움직이지 말고 몇 수 앞을 생각하세요</li>
+                        </ul>
+                    </section>
+
+                    <section class="help-section admin-section">
+                        <h3>👑 관리자 전용 기능</h3>
+                        <p><strong>계정:</strong> admin / admin123</p>
+                        <div class="admin-features">
+                            <div class="feature-item">
+                                <strong>🤖 AI 가이드</strong>
+                                <p>AI가 최적의 다음 수를 실시간으로 추천해줍니다. 추천 방향을 참고하여 높은 점수를 달성하세요!</p>
+                            </div>
+                            <div class="feature-item">
+                                <strong>⚡ 자동 가이드</strong>
+                                <p>"자동 가이드 켜기"를 활성화하면 AI가 자동으로 게임을 플레이합니다. 높은 점수 기록에 도전해보세요!</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="help-section">
+                        <h3>🏆 랭킹 시스템</h3>
+                        <p>모든 플레이어의 최고 점수가 기록되며, "랭킹 보기"를 통해 확인할 수 있습니다.</p>
+                        <ul>
+                            <li>🥇 1위: 금메달</li>
+                            <li>🥈 2위: 은메달</li>
+                            <li>🥉 3위: 동메달</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/ai.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

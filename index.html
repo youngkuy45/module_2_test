@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 게임 - 로그인</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-container">
+            <h1>2048 게임</h1>
+
+            <div id="loginForm" class="form-box">
+                <h2>로그인</h2>
+                <form onsubmit="handleLogin(event)">
+                    <input type="text" id="loginUsername" placeholder="사용자명" required>
+                    <input type="password" id="loginPassword" placeholder="비밀번호" required>
+                    <button type="submit">로그인</button>
+                </form>
+                <p>계정이 없으신가요? <a href="#" onclick="showRegister()">회원가입</a></p>
+            </div>
+
+            <div id="registerForm" class="form-box" style="display: none;">
+                <h2>회원가입</h2>
+                <form onsubmit="handleRegister(event)">
+                    <input type="text" id="registerUsername" placeholder="사용자명" required>
+                    <input type="password" id="registerPassword" placeholder="비밀번호" required>
+                    <input type="password" id="registerConfirmPassword" placeholder="비밀번호 확인" required>
+                    <button type="submit">가입하기</button>
+                </form>
+                <p>이미 계정이 있으신가요? <a href="#" onclick="showLogin()">로그인</a></p>
+            </div>
+
+            <div class="info-box">
+                <h3>관리자 계정 정보</h3>
+                <p>사용자명: <strong>admin</strong></p>
+                <p>비밀번호: <strong>admin123</strong></p>
+                <p class="hint">관리자 계정으로 로그인하면 AI 가이드 기능을 사용할 수 있습니다!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

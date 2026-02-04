@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcopy /E /I /Y \"*.html\" \"android\\\\app\\\\src\\\\main\\\\assets\"\" && xcopy /E /I /Y \"css\" \"androidappsrcmainassetscss\"\")",
+      "Bash(xcopy:*)",
+      "Bash(gh repo create:*)"
+    ]
+  }
+}
